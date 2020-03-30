@@ -10,9 +10,8 @@ import SwiftUI
 import CoreServices
 
 struct ContentView: View {
-  @State private var rect2: CGRect = CGRect()
   @State private var rect:[CGRect] = []
-  @State private var textText = ["","","","","","","","","","","","","","","",""]
+  @State private var textText = ["","","","","","","","","","","","","","","","","","","","","",""]
   @State private var textID = 0
   @State private var textValue1:String = "Hello World 1"
   @State private var textValue2:String = "Hello World 2"
@@ -30,40 +29,45 @@ struct ContentView: View {
         .onDrag {
             return NSItemProvider(object: self.textValue2 as NSItemProviderWriting) }
     Spacer()
-//    VStack(alignment: .center, spacing: 5) {
-//            ForEach((0 ..< 4).reversed(), id: \.self) { row in
-//                HStack(alignment: .center, spacing: 5) {
-//                    ForEach((0 ..< 3).reversed(), id: \.self) { column in
-//                      Text(self.textText[self.index])
-//                      .frame(width: 128, height: 32, alignment: .center)
-//                      .background(InsideView(rect: self.$rect))
-//                      .background(Color.yellow)
-//                      .onDrop(of: ["public.utf8-plain-text"], delegate: dropDelegate)
-//                    }
-//                }
-//            }
-//        }
+    VStack(alignment: .center, spacing: 5) {
+            ForEach((0 ..< 3).reversed(), id: \.self) { row in
+                HStack(alignment: .center, spacing: 5) {
+                    ForEach((0 ..< 3).reversed(), id: \.self) { column in
+                      Text(self.textText[column + (row*3)])
+                      .frame(width: 128, height: 32, alignment: .center)
+                      .background(InsideView(rect: self.$rect))
+                      .background(Color.yellow)
+                      .onDrop(of: ["public.utf8-plain-text"], delegate: dropDelegate)
+                      .onAppear {
+                        DispatchQueue.main.async {
+                          self.index = self.index + 1
+                        }
+                      }
+                    }
+                }
+            }
+        }
     
-    VStack {
-      HStack {
-        ForEach((0...3).reversed(), id: \.self) {
-          Text(self.textText[$0])
-            .frame(width: 128, height: 32, alignment: .center)
-            .background(Color.yellow)
-            .background(InsideView(rect: self.$rect))
-            .onDrop(of: ["public.utf8-plain-text"], delegate: dropDelegate)
-          }
-        }
-      HStack {
-        ForEach((0...3).reversed(), id: \.self) {
-          Text(self.textText[$0+4])
-            .frame(width: 128, height: 32, alignment: .center)
-            .background(Color.yellow)
-            .background(InsideView(rect: self.$rect))
-            .onDrop(of: ["public.utf8-plain-text"], delegate: dropDelegate)
-          }
-        }
-    }
+//    VStack {
+//      HStack {
+//        ForEach((0...3).reversed(), id: \.self) {
+//          Text(self.textText[$0])
+//            .frame(width: 128, height: 32, alignment: .center)
+//            .background(Color.yellow)
+//            .background(InsideView(rect: self.$rect))
+//            .onDrop(of: ["public.utf8-plain-text"], delegate: dropDelegate)
+//          }
+//        }
+//      HStack {
+//        ForEach((0...3).reversed(), id: \.self) {
+//          Text(self.textText[$0+4])
+//            .frame(width: 128, height: 32, alignment: .center)
+//            .background(Color.yellow)
+//            .background(InsideView(rect: self.$rect))
+//            .onDrop(of: ["public.utf8-plain-text"], delegate: dropDelegate)
+//          }
+//        }
+//    }
     Spacer()
     }
   }
@@ -73,6 +77,7 @@ struct ContentView: View {
 struct InsideView: View {
   @Binding var rect: [CGRect]
   var body: some View {
+    
     return GeometryReader { geometry in
       Circle()
       .fill(Color.red)
@@ -80,6 +85,7 @@ struct InsideView: View {
       .opacity(0.2)
       .onAppear {
         self.rect.append(geometry.frame(in: .global))
+        
       }
     }
   }
@@ -111,6 +117,7 @@ struct TheDropDelegate: DropDelegate {
         
         func performDrop(info: DropInfo) -> Bool {
             textID = dropTarget(info: info)!
+            if textID == nil { return false }
             
             if let item = info.itemProviders(for: ["public.utf8-plain-text"]).first {
                 item.loadItem(forTypeIdentifier: "public.utf8-plain-text", options: nil) { (urlData, error) in
