@@ -12,11 +12,13 @@ import CoreServices
 struct ContentView: View {
   @State private var rect2: CGRect = CGRect()
   @State private var rect:[CGRect] = []
-  @State private var textText = ["","","",""]
+  @State private var textText = ["","","","","","","","","","","","","","","",""]
   @State private var textID = 0
   @State private var textValue1:String = "Hello World 1"
   @State private var textValue2:String = "Hello World 2"
   @State private var show = false
+  @State private var index = 0
+//  @State private var index = 0
   var body: some View {
     let dropDelegate = TheDropDelegate(textID: $textID, textText: $textText, rect: $rect)
     return VStack {
@@ -28,6 +30,21 @@ struct ContentView: View {
         .onDrag {
             return NSItemProvider(object: self.textValue2 as NSItemProviderWriting) }
     Spacer()
+//    VStack(alignment: .center, spacing: 5) {
+//            ForEach((0 ..< 4).reversed(), id: \.self) { row in
+//                HStack(alignment: .center, spacing: 5) {
+//                    ForEach((0 ..< 3).reversed(), id: \.self) { column in
+//                      Text(self.textText[self.index])
+//                      .frame(width: 128, height: 32, alignment: .center)
+//                      .background(InsideView(rect: self.$rect))
+//                      .background(Color.yellow)
+//                      .onDrop(of: ["public.utf8-plain-text"], delegate: dropDelegate)
+//                    }
+//                }
+//            }
+//        }
+    
+    VStack {
       HStack {
         ForEach((0...3).reversed(), id: \.self) {
           Text(self.textText[$0])
@@ -37,6 +54,16 @@ struct ContentView: View {
             .onDrop(of: ["public.utf8-plain-text"], delegate: dropDelegate)
           }
         }
+      HStack {
+        ForEach((0...3).reversed(), id: \.self) {
+          Text(self.textText[$0+4])
+            .frame(width: 128, height: 32, alignment: .center)
+            .background(Color.yellow)
+            .background(InsideView(rect: self.$rect))
+            .onDrop(of: ["public.utf8-plain-text"], delegate: dropDelegate)
+          }
+        }
+    }
     Spacer()
     }
   }
@@ -53,7 +80,6 @@ struct InsideView: View {
       .opacity(0.2)
       .onAppear {
         self.rect.append(geometry.frame(in: .global))
-        print("self.rect ",geometry.frame(in: .global).width)
       }
     }
   }
