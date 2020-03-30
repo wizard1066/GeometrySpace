@@ -10,27 +10,32 @@ import SwiftUI
 import CoreServices
 
 struct ContentView: View {
-  @State private var rect: CGPoint = CGPoint()
+  @State private var rect2: CGRect = CGRect()
+  @State private var rect:[CGRect] = []
   @State private var textText = ["","","",""]
   @State private var textID = 0
-  @State private var textValue:String = "Hello World"
+  @State private var textValue1:String = "Hello World 1"
+  @State private var textValue2:String = "Hello World 2"
+  @State private var show = false
   var body: some View {
-    let dropDelegate = TheDropDelegate(textID: $textID, textText: $textText, textValue: $textValue)
+    let dropDelegate = TheDropDelegate(textID: $textID, textText: $textText, rect: $rect)
     return VStack {
     Spacer()
-      Text(textValue).background(InsideView(rect: $rect))
+      Text(textValue1)
         .onDrag {
-            return NSItemProvider(object: self.textValue as NSItemProviderWriting) }
+            return NSItemProvider(object: self.textValue1 as NSItemProviderWriting) }
+      Text(textValue2)
+        .onDrag {
+            return NSItemProvider(object: self.textValue2 as NSItemProviderWriting) }
     Spacer()
       HStack {
-          Text(textText[0])
-            .frame(width: 128, height: 20, alignment: .center)
+        ForEach((0...3).reversed(), id: \.self) {
+          Text(self.textText[$0])
+            .frame(width: 128, height: 32, alignment: .center)
             .background(Color.yellow)
+            .background(InsideView(rect: self.$rect))
             .onDrop(of: ["public.utf8-plain-text"], delegate: dropDelegate)
-          Text(textText[1])
-            .frame(width: 128, height: 20, alignment: .center)
-            .background(Color.yellow)
-            .onDrop(of: ["public.utf8-plain-text"], delegate: dropDelegate)
+          }
         }
     Spacer()
     }
@@ -39,13 +44,16 @@ struct ContentView: View {
 
 
 struct InsideView: View {
-  @Binding var rect: CGPoint
+  @Binding var rect: [CGRect]
   var body: some View {
     return GeometryReader { geometry in
-      Rectangle()
-      .frame(width: 0, height: 0, alignment: .leading)
+      Circle()
+      .fill(Color.red)
+      .frame(width: 0, height: 0, alignment: .topLeading)
+      .opacity(0.2)
       .onAppear {
-        self.rect = geometry.frame(in: .global).origin
+        self.rect.append(geometry.frame(in: .global))
+        print("self.rect ",geometry.frame(in: .global).width)
       }
     }
   }
@@ -56,7 +64,7 @@ struct InsideView: View {
 struct TheDropDelegate: DropDelegate {
   @Binding var textID:Int
   @Binding var textText:[String]
-  @Binding var textValue:String
+  @Binding var rect:[CGRect]
   
   func validateDrop(info: DropInfo) -> Bool {
           return info.hasItemsConforming(to: ["public.utf8-plain-text"])
@@ -66,16 +74,17 @@ struct TheDropDelegate: DropDelegate {
             print("drop entered")
         }
         
-        func dropTarget(info: DropInfo) -> Int {
-          if info.location.x > UIScreen.main.bounds.width / 2 {
-              return(1)
-            } else {
-              return(0)
+        func dropTarget(info: DropInfo) -> Int? {
+          for squareno in 0..<rect.count {
+            if rect[squareno].contains(info.location) {
+              return squareno
             }
+          }
+          return nil
         }
         
         func performDrop(info: DropInfo) -> Bool {
-            textID = dropTarget(info: info)
+            textID = dropTarget(info: info)!
             
             if let item = info.itemProviders(for: ["public.utf8-plain-text"]).first {
                 item.loadItem(forTypeIdentifier: "public.utf8-plain-text", options: nil) { (urlData, error) in
