@@ -206,8 +206,6 @@ struct TheDropDelegate: DropDelegate {
               return false
             }
             textID = dropTarget(info: info)!
-            print("textID ",textID)
-            
             
             if let item = info.itemProviders(for: ["public.utf8-plain-text"]).first {
                 item.loadItem(forTypeIdentifier: "public.utf8-plain-text", options: nil) { (urlData, error) in
