@@ -26,9 +26,8 @@ struct ContentView: View {
   @State private var textColors = [Color](repeating: Color.clear, count: 16)
   @State private var textID:Int? = 0
   @State private var textValue:[String] = [" 1 "," 2 "," 3 "," 4 "]
-  @State private var defaultColor = Color.yellow
-  @State private var colorID = 0
-  @State private var fuck: Int!
+  
+  
   var body: some View {
     let dropDelegate = TheDropDelegate(textID: $textID, textText: $textText, rect: $rect, textColors: $textColors)
     return VStack {
@@ -50,7 +49,6 @@ struct ContentView: View {
                 HStack(alignment: .center, spacing: 5) {
                     ForEach((0 ..< 4).reversed(), id: \.self) { column in
                        return VStack {
-//                        fuck = (column + (row*4))
                         if self.textColors[fCalc(c: column, r: row)] == Color.clear {
                            Text(self.textText[fCalc(c: column, r: row)])
                           .font(Fonts.futuraCondensedMedium(size:48))
@@ -95,28 +93,28 @@ func fCalc(c:Int, r:Int) -> Int {
   return (c + (r*4))
 }
 
-struct TextView: View {
-  @Binding var column: Int
-  @Binding var row: Int
-  @Binding var dropDelegate: DropDelegate
-  @Binding var textText:[String]
-  @Binding var rect:[CGRect]
-  var body: some View {
-    let calc = (column + (row*4))
-    return BoxView(text: self.textText[calc])
-      .background(InsideView(rect: self.$rect))
-      .onDrop(of: ["public.utf8-plain-text"], delegate: dropDelegate)
-  }
-}
-
-struct BoxView: View {
-  @State var text:String
-  var body: some View {
-    return Text(text)
-    .font(Fonts.futuraCondensedMedium(size:48))
-    .frame(width: 64, height: 32, alignment: .center)
-  }
-}
+//struct TextView: View {
+//  @Binding var column: Int
+//  @Binding var row: Int
+//  @Binding var dropDelegate: DropDelegate
+//  @Binding var textText:[String]
+//  @Binding var rect:[CGRect]
+//  var body: some View {
+//    let calc = (column + (row*4))
+//    return BoxView(text: self.textText[calc])
+//      .background(InsideView(rect: self.$rect))
+//      .onDrop(of: ["public.utf8-plain-text"], delegate: dropDelegate)
+//  }
+//}
+//
+//struct BoxView: View {
+//  @State var text:String
+//  var body: some View {
+//    return Text(text)
+//    .font(Fonts.futuraCondensedMedium(size:48))
+//    .frame(width: 64, height: 32, alignment: .center)
+//  }
+//}
 
 struct InsideView: View {
   @Binding var rect: [CGRect]
@@ -178,6 +176,8 @@ struct TheDropDelegate: DropDelegate {
   @Binding var textText:[String]
   @Binding var rect:[CGRect]
   @Binding var textColors:[Color]
+  
+ 
   
   func validateDrop(info: DropInfo) -> Bool {
           return info.hasItemsConforming(to: ["public.utf8-plain-text"])
